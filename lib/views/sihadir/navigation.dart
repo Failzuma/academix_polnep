@@ -3,6 +3,8 @@ import 'package:academix_polnep/views/sihadir/dashboard/dashboard.dart';
 import 'package:academix_polnep/views/sihadir/kelas/kelas_admin.dart';
 import 'package:academix_polnep/views/sihadir/kelas/kelas_dosen.dart';
 import 'package:academix_polnep/views/sihadir/kelas/kelas_mahasiswa.dart';
+import 'package:academix_polnep/views/sihadir/presensi/pengajuan_izin.dart';
+import 'package:academix_polnep/views/sihadir/presensi/presensi.dart';
 import 'package:flutter/material.dart';
 import 'package:convex_bottom_bar/convex_bottom_bar.dart';
 
@@ -18,7 +20,7 @@ class _NavbarState extends State<Navbar> {
   final _pages = [
     // contoh
     const Dashboard(), // home
-    const Text("Presensi"), // presensi
+    Presensi(), // presensi
     const Text("Kalender Akademik"), // kalender
     KelasDosen(), // kelas
     const Text("Laporan"), // laporan
