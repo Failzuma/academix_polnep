@@ -25,6 +25,36 @@ class _PresensiState extends State<Presensi> {
       'timedate': '2024-08-12 01:00 PM',
       'roomId': 'Room 102',
     },
+    '111222': {
+      'className': 'Pemrograman Web',
+      'dosenName': 'Dr. John Smith',
+      'timedate': '2024-08-13 10:00 AM',
+      'roomId': 'Room 103',
+    },
+    '222111': {
+      'className': 'Sistem Operasi',
+      'dosenName': 'Dr. Jane Smith',
+      'timedate': '2024-08-13 01:00 PM',
+      'roomId': 'Room 104',
+    },
+    '333444': {
+      'className': 'Jaringan Komputer',
+      'dosenName': 'Dr. John Johnson',
+      'timedate': '2024-08-14 10:00 AM',
+      'roomId': 'Room 105',
+    },
+    '444333': {
+      'className': 'Basis Data',
+      'dosenName': 'Dr. Jane Johnson',
+      'timedate': '2024-08-14 01:00 PM',
+      'roomId': 'Room 106',
+    },
+    '555666': {
+      'className': 'Algoritma dan Struktur Data',
+      'dosenName': 'Dr. John Brown',
+      'timedate': '2024-08-15 10:00 AM',
+      'roomId': 'Room 107',
+    },
     // Add more tokens if needed
   };
 
@@ -48,53 +78,105 @@ class _PresensiState extends State<Presensi> {
   void _addDataToTable() {
     final enteredToken = _tokenController.text.trim();
     final tokenInfo = tokenData[enteredToken];
-    
+
     if (_isTokenValid) {
-      final currentTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
-      setState(() {
-        _dataRows.add(
-          DataRow(
-            cells: [
-              DataCell(
-                Container(
-                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-                  width: 80,
-                  height: 30,
-                  decoration: BoxDecoration(
-                    color: Colors.green, // Assuming 'Hadir' for new entries
-                    borderRadius: BorderRadius.circular(5),
+      // Check if the token is already used
+      final isTokenAlreadyUsed = _dataRows.any(
+        (row) {
+          final cell = row.cells[1].child as Text;
+          return cell.data == tokenInfo!['className'];
+        },
+      );
+
+      if (isTokenAlreadyUsed) {
+        // Token already used
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Peringatan', style: GoogleFonts.manrope()),
+              content: Text('Data sudah ada!', style: GoogleFonts.manrope()),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('OK', style: GoogleFonts.manrope()),
+                ),
+              ],
+            );
+          },
+        );
+        return;
+      }
+
+      // Check if the number of rows is less than 6
+      if (_dataRows.length < 6) {
+        final currentTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+        setState(() {
+          _dataRows.add(
+            DataRow(
+              cells: [
+                DataCell(
+                  Container(
+                    padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                    width: 80,
+                    height: 30,
+                    decoration: BoxDecoration(
+                      color: Colors.green, // Assuming 'Hadir' for new entries
+                      borderRadius: BorderRadius.circular(5),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      'Hadir',
+                      style: GoogleFonts.manrope(
+                        fontWeight: FontWeight.w400,
+                        fontSize: 14,
+                        color: Colors.white,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    'Hadir',
+                ),
+                DataCell(
+                  Text(
+                    tokenInfo!['className']!,
                     style: GoogleFonts.manrope(
                       fontWeight: FontWeight.w400,
                       fontSize: 14,
-                      color: Colors.white,
+                      color: const Color(0xFF424242),
                     ),
-                    textAlign: TextAlign.center,
                   ),
                 ),
-              ),
-              DataCell(
-                Text(
-                  tokenInfo!['className']!,
-                  style: GoogleFonts.manrope(
-                    fontWeight: FontWeight.w400,
-                    fontSize: 14,
-                    color: const Color(0xFF424242),
-                  ),
+              ],
+              onSelectChanged: (selected) {
+                if (selected == true) {
+                  _showDetailsDialog(tokenInfo, currentTime);
+                }
+              },
+            ),
+          );
+        });
+      } else {
+        // Maximum number of rows reached
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Peringatan', style: GoogleFonts.manrope()),
+              content: Text('Jumlah data sudah mencapai batas maksimum!', style: GoogleFonts.manrope()),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the dialog
+                  },
+                  child: Text('OK', style: GoogleFonts.manrope()),
                 ),
-              ),
-            ],
-            onSelectChanged: (selected) {
-              if (selected == true) {
-                _showDetailsDialog(tokenInfo, currentTime);
-              }
-            },
-          ),
+              ],
+            );
+          },
         );
-      });
+      }
     } else {
       showDialog(
         context: context,
@@ -162,111 +244,97 @@ class _PresensiState extends State<Presensi> {
           _buildAbsenButton(),
           SizedBox(height: screenHeight * 0.02),
           _buildTextWithPadding(
-              "Tabel Presensi Mingguan Kamu", EdgeInsets.zero),
+              "Tabel Presensi Mingguan Anda", EdgeInsets.zero),
           _buildAbsensiTable(),
         ],
       ),
     );
   }
 
-  Widget _buildShadowedContainer(double screenWidth, double screenHeight) {
-    final enteredToken = _tokenController.text.trim();
-    final tokenInfo = tokenData[enteredToken];
+Widget _buildShadowedContainer(double screenWidth, double screenHeight) {
+  final enteredToken = _tokenController.text.trim();
+  final tokenInfo = tokenData[enteredToken];
 
-    return Container(
-      margin: EdgeInsets.fromLTRB(screenWidth * 0.03, 0, screenWidth * 0.05,
-          screenHeight * 0.04), // Increased bottom margin
-      decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0x40000000),
-            offset: const Offset(0, 4),
-            blurRadius: 4, // Increased blur radius for better shadow effect
-          ),
-        ],
-        borderRadius: BorderRadius.circular(
-            12), // Increased border radius for a smoother look
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12), // Match border radius
-        child: Container(
-          width: screenWidth * 0.9,
-          height: screenHeight * 0.25, // Increased height for more space
-          color: const Color.fromARGB(255, 246, 246, 246),
-          child: _isTokenValid
-              ? Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text('Class Name: ${tokenInfo!['className']}',
-                        style: GoogleFonts.manrope(
-                            fontSize: 16,
-                            fontWeight:
-                                FontWeight.bold)), // Increased font size
-                    Text('Dosen Name: ${tokenInfo['dosenName']}',
-                        style: GoogleFonts.manrope(
-                            fontSize: 14)), // Increased font size
-                    Text('Time and Date: ${tokenInfo['timedate']}',
-                        style: GoogleFonts.manrope(
-                            fontSize: 14)), // Increased font size
-                    Text('Room ID: ${tokenInfo['roomId']}',
-                        style: GoogleFonts.manrope(
-                            fontSize: 14)), // Increased font size
-                    SizedBox(
-                        height: 24), // Increased space between text and button
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) => PengajuanIzin()),
-                        );
-                      },
-                      style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(
-                            horizontal: 20, vertical: 10), // Increased padding
-                        backgroundColor: Colors
-                            .transparent, // Set to transparent for gradient effect
-                        shadowColor: Colors.transparent,
-                      ),
-                      child: Ink(
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFF158AD4), Color(0xFF39EADD)],
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Container(
-                          alignment: Alignment.center,
-                          constraints: BoxConstraints(
-                            minWidth: 80, // Adjust minimum width
-                            minHeight: 36, // Adjust minimum height
-                          ),
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 10), // Increased padding
-                          child: Text(
-                            'Ajukan Izin',
-                            style: GoogleFonts.manrope(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                  ],
-                )
-              : Center(
-                  child: Text('Token tidak valid!',
-                      style: GoogleFonts.manrope(
-                          fontSize: 18))), // Increased font size
+  return Container(
+    margin: EdgeInsets.fromLTRB(screenWidth * 0.03, 0, screenWidth * 0.05, screenHeight * 0.04),
+    decoration: BoxDecoration(
+      boxShadow: [
+        BoxShadow(
+          color: const Color(0x40000000),
+          offset: const Offset(0, 4),
+          blurRadius: 4,
         ),
+      ],
+      borderRadius: BorderRadius.circular(12),
+    ),
+    child: ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Container(
+        width: screenWidth * 0.8, // Reduced width
+        height: screenHeight * 0.2, // Reduced height
+        color: const Color.fromARGB(255, 246, 246, 246),
+        child: _isTokenValid
+            ? Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('Class Name: ${tokenInfo!['className']}',
+                      style: GoogleFonts.manrope(
+                          fontSize: 13, fontWeight: FontWeight.bold)),
+                  Text('Dosen Name: ${tokenInfo['dosenName']}',
+                      style: GoogleFonts.manrope(fontSize: 13)),
+                  Text('Time and Date: ${tokenInfo['timedate']}',
+                      style: GoogleFonts.manrope(fontSize: 13)),
+                  Text('Room ID: ${tokenInfo['roomId']}',
+                      style: GoogleFonts.manrope(fontSize: 13)),
+                  SizedBox(height: 16), // Reduced space between text and button
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => PengajuanIzin()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      backgroundColor: Colors.transparent,
+                      shadowColor: Colors.transparent,
+                    ),
+                    child: Ink(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF158AD4), Color(0xFF39EADD)],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                        ),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Container(
+                        alignment: Alignment.center,
+                        constraints: BoxConstraints(
+                          minWidth: 80,
+                          minHeight: 36,
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                        child: Text(
+                          'Ajukan Izin',
+                          style: GoogleFonts.manrope(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                ],
+              )
+            : Center(
+                child: Text('Token tidak valid!',
+                    style: GoogleFonts.manrope(fontSize: 18))),
       ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildTextWithPadding(String text, EdgeInsets padding) {
     return Padding(
@@ -373,7 +441,7 @@ class _PresensiState extends State<Presensi> {
     );
   }
 
-Widget _buildAbsensiTable() {
+  Widget _buildAbsensiTable() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       padding: EdgeInsets.symmetric(vertical: 10),
