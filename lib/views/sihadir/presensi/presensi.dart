@@ -18,6 +18,12 @@ class _PresensiState extends State<Presensi> {
       'timedate': '2024-08-12 10:00 AM',
       'roomId': 'Room 101',
     },
+    '654321': {
+      'className': 'Grafika Komputer',
+      'dosenName': 'Dr. Jane Doe',
+      'timedate': '2024-08-12 01:00 PM',
+      'roomId': 'Room 102',
+    },
     // Add more tokens if needed
   };
 
@@ -323,10 +329,10 @@ class _PresensiState extends State<Presensi> {
                 ],
                 rows: [
                   _buildDataRow('Hadir', 'Pemrograman Mobile'),
+                  _buildDataRow('Izin', 'Pemrograman Mobile'),
                   _buildDataRow('Hadir', 'Pemrograman Mobile'),
-                  _buildDataRow('Hadir', 'Pemrograman Mobile'),
-                  _buildDataRow('Hadir', 'Pemrograman Mobile'),
-                  _buildDataRow('Hadir', 'Pemrograman Mobile'),
+                  _buildDataRow('Kosong', 'Pemrograman Mobile'),
+                  _buildDataRow('Alpa', 'Grafika Komputer'),
                 ],
                 dataRowColor: MaterialStateProperty.resolveWith<Color>(
                   (Set<MaterialState> states) {
@@ -352,12 +358,50 @@ class _PresensiState extends State<Presensi> {
     );
   }
 
-  DataRow _buildDataRow(String status, String mataKuliah) {
-    return DataRow(
-      cells: [
-        DataCell(Text(status)),
-        DataCell(Text(mataKuliah)),
-      ],
-    );
-  }
+DataRow _buildDataRow(String status, String mataKuliah) {
+  return DataRow(
+    cells: [
+      DataCell(
+        Container(
+          padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+          width: 80, // Set a fixed width for the color box
+          height: 30, // Adjust the height to be lower
+          decoration: BoxDecoration(
+            color: status == 'Hadir'
+                ? Colors.green
+                : status == 'Alpa'
+                    ? Colors.red
+                    : status == 'Izin'
+                        ? Colors.blue
+                        : Colors.orange,
+            borderRadius: BorderRadius.circular(5),
+          ),
+          alignment: Alignment.center, // Center align the text
+          child: Text(
+            status,
+            style: GoogleFonts.manrope(
+              fontWeight: FontWeight.w400,
+              fontSize: 14,
+              color: Colors.white,
+            ),
+            textAlign: TextAlign.center, // Ensure text is centered
+          ),
+        ),
+      ),
+      DataCell(
+        Text(
+          mataKuliah,
+          style: GoogleFonts.manrope(
+            fontWeight: FontWeight.w400,
+            fontSize: 14,
+            color: const Color(0xFF424242),
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
+
+
 }
