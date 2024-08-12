@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:academix_polnep/views/sihadir/presensi/pengajuan_izin.dart';
+import 'package:academix_polnep/views/sihadir/presensi/pengajuan_izin.dart'; // Import the PengajuanIzin class
+import 'package:intl/intl.dart'; // For formatting date and time
 
 class Presensi extends StatefulWidget {
   const Presensi({super.key});
@@ -29,6 +30,7 @@ class _PresensiState extends State<Presensi> {
 
   final TextEditingController _tokenController = TextEditingController();
   bool _isTokenValid = false;
+  List<DataRow> _dataRows = []; // Store the rows of the DataTable
 
   void _validateToken() {
     final enteredToken = _tokenController.text.trim();
@@ -40,6 +42,72 @@ class _PresensiState extends State<Presensi> {
       setState(() {
         _isTokenValid = false;
       });
+    }
+  }
+
+  void _addDataToTable() {
+    final enteredToken = _tokenController.text.trim();
+    final tokenInfo = tokenData[enteredToken];
+    
+    if (_isTokenValid) {
+      final currentTime = DateFormat('yyyy-MM-dd HH:mm:ss').format(DateTime.now());
+      setState(() {
+        _dataRows.add(
+          DataRow(
+            cells: [
+              DataCell(
+                Container(
+                  padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
+                  width: 80,
+                  height: 30,
+                  decoration: BoxDecoration(
+                    color: Colors.green, // Assuming 'Hadir' for new entries
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    'Hadir',
+                    style: GoogleFonts.manrope(
+                      fontWeight: FontWeight.w400,
+                      fontSize: 14,
+                      color: Colors.white,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              DataCell(
+                Text(
+                  '${tokenInfo!['className']} - $currentTime',
+                  style: GoogleFonts.manrope(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
+                    color: const Color(0xFF424242),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      });
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Peringatan', style: GoogleFonts.manrope()),
+            content: Text('Token tidak valid!', style: GoogleFonts.manrope()),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop(); // Close the dialog
+                },
+                child: Text('OK', style: GoogleFonts.manrope()),
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
@@ -235,30 +303,7 @@ class _PresensiState extends State<Presensi> {
   Widget _buildAbsenButton() {
     return ElevatedButton(
       onPressed: () {
-        if (_isTokenValid) {
-          // Token is valid, proceed with the action
-          setState(() {}); // Rebuild to update the container
-        } else {
-          // Token is not valid, show a popup notification
-          showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              return AlertDialog(
-                title: Text('Peringatan', style: GoogleFonts.manrope()),
-                content:
-                    Text('Token tidak valid!', style: GoogleFonts.manrope()),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
-                    },
-                    child: Text('OK', style: GoogleFonts.manrope()),
-                  ),
-                ],
-              );
-            },
-          );
-        }
+        _addDataToTable(); // Add data to table when pressed
       },
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -327,13 +372,7 @@ class _PresensiState extends State<Presensi> {
                   DataColumn(label: Text('Status')),
                   DataColumn(label: Text('Mata Kuliah')),
                 ],
-                rows: [
-                  _buildDataRow('Hadir', 'Pemrograman Mobile'),
-                  _buildDataRow('Izin', 'Pemrograman Mobile'),
-                  _buildDataRow('Hadir', 'Pemrograman Mobile'),
-                  _buildDataRow('Kosong', 'Pemrograman Mobile'),
-                  _buildDataRow('Alpa', 'Grafika Komputer'),
-                ],
+                rows: _dataRows, // Use dynamic rows
                 dataRowColor: MaterialStateProperty.resolveWith<Color>(
                   (Set<MaterialState> states) {
                     if (states.contains(MaterialState.selected)) {
@@ -357,51 +396,4 @@ class _PresensiState extends State<Presensi> {
       ),
     );
   }
-
-DataRow _buildDataRow(String status, String mataKuliah) {
-  return DataRow(
-    cells: [
-      DataCell(
-        Container(
-          padding: EdgeInsets.symmetric(vertical: 2, horizontal: 8),
-          width: 80, // Set a fixed width for the color box
-          height: 30, // Adjust the height to be lower
-          decoration: BoxDecoration(
-            color: status == 'Hadir'
-                ? Colors.green
-                : status == 'Alpa'
-                    ? Colors.red
-                    : status == 'Izin'
-                        ? Colors.blue
-                        : Colors.orange,
-            borderRadius: BorderRadius.circular(5),
-          ),
-          alignment: Alignment.center, // Center align the text
-          child: Text(
-            status,
-            style: GoogleFonts.manrope(
-              fontWeight: FontWeight.w400,
-              fontSize: 14,
-              color: Colors.white,
-            ),
-            textAlign: TextAlign.center, // Ensure text is centered
-          ),
-        ),
-      ),
-      DataCell(
-        Text(
-          mataKuliah,
-          style: GoogleFonts.manrope(
-            fontWeight: FontWeight.w400,
-            fontSize: 14,
-            color: const Color(0xFF424242),
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
-
-
 }
