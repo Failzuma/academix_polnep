@@ -78,7 +78,7 @@ class _PresensiState extends State<Presensi> {
               ),
               DataCell(
                 Text(
-                  '${tokenInfo!['className']} - $currentTime',
+                  tokenInfo!['className']!,
                   style: GoogleFonts.manrope(
                     fontWeight: FontWeight.w400,
                     fontSize: 14,
@@ -87,6 +87,11 @@ class _PresensiState extends State<Presensi> {
                 ),
               ),
             ],
+            onSelectChanged: (selected) {
+              if (selected == true) {
+                _showDetailsDialog(tokenInfo, currentTime);
+              }
+            },
           ),
         );
       });
@@ -109,6 +114,35 @@ class _PresensiState extends State<Presensi> {
         },
       );
     }
+  }
+
+  void _showDetailsDialog(Map<String, String> tokenInfo, String currentTime) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Detail Presensi', style: GoogleFonts.manrope()),
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Mata Kuliah\t: ${tokenInfo['className']}', style: GoogleFonts.manrope(fontSize: 16)),
+              Text('Dosen Name\t: ${tokenInfo['dosenName']}', style: GoogleFonts.manrope(fontSize: 14)),
+              Text('Waktu Presensi\t: $currentTime', style: GoogleFonts.manrope(fontSize: 14)),
+              Text('Ruangan\t\t: ${tokenInfo['roomId']}', style: GoogleFonts.manrope(fontSize: 14)),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: Text('Close', style: GoogleFonts.manrope()),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -339,7 +373,7 @@ class _PresensiState extends State<Presensi> {
     );
   }
 
-  Widget _buildAbsensiTable() {
+Widget _buildAbsensiTable() {
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       padding: EdgeInsets.symmetric(vertical: 10),
@@ -362,6 +396,7 @@ class _PresensiState extends State<Presensi> {
             child: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: DataTable(
+                showCheckboxColumn: false, // Hide the checkbox column
                 headingRowColor: MaterialStateProperty.all(Colors.transparent),
                 headingTextStyle: GoogleFonts.manrope(
                   fontWeight: FontWeight.bold,
@@ -389,6 +424,7 @@ class _PresensiState extends State<Presensi> {
                 ),
                 dividerThickness: 1.5,
                 columnSpacing: 20,
+                dataRowHeight: 60, // Adjust height to fit content
               ),
             ),
           ),
