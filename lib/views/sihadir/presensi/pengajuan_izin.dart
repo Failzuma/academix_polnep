@@ -37,7 +37,7 @@ class _PengajuanIzinState extends State<PengajuanIzin> {
 String deadlineIzin() {
   final now = DateTime.now();
   final currentDay = now.weekday;
-  if (currentDay == DateTime.sunday) {
+  if (currentDay == DateTime.sunday || currentDay == DateTime.saturday) {
     return 'Hari ini libur';
   }
   final daysUntilFriday = (DateTime.friday - currentDay + 7) % 7;
@@ -53,7 +53,7 @@ String deadlineIzin() {
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: const Text('Si Hadir'),
+        title: const Text('Si Hadir Pengajuan Izin'),
         centerTitle: true,
       ),
       body: Container(
