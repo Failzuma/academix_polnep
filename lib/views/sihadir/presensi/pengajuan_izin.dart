@@ -34,16 +34,16 @@ class _PengajuanIzinState extends State<PengajuanIzin> {
     });
   }
 
-  String deadlineIzin() {
+String deadlineIzin() {
   final now = DateTime.now();
   final currentDay = now.weekday;
-    if (currentDay == DateTime.sunday) {
+  if (currentDay == DateTime.sunday) {
     return 'Hari ini libur';
   }
-  final daysUntilSaturday = (DateTime.saturday - currentDay + 7) % 7;
-  final deadline = daysUntilSaturday == 0 ? 0 : daysUntilSaturday;
+  final daysUntilFriday = (DateTime.friday - currentDay + 7) % 7;
+  final deadline = daysUntilFriday == 0 ? 0 : daysUntilFriday;
   return 'Waktu yang tersisa untuk mengunggah: $deadline Hari';
-  }
+}
 
   @override
   Widget build(BuildContext context) {

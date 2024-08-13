@@ -255,6 +255,14 @@ Widget _buildShadowedContainer(double screenWidth, double screenHeight) {
   final enteredToken = _tokenController.text.trim();
   final tokenInfo = tokenData[enteredToken];
 
+  // Check if the token is already used
+  final isTokenAlreadyUsed = _dataRows.any(
+    (row) {
+      final cell = row.cells[1].child as Text;
+      return tokenInfo != null && cell.data == tokenInfo['className'];
+    },
+  );
+
   return Container(
     margin: EdgeInsets.fromLTRB(screenWidth * 0.03, 0, screenWidth * 0.05, screenHeight * 0.04),
     decoration: BoxDecoration(
@@ -288,12 +296,14 @@ Widget _buildShadowedContainer(double screenWidth, double screenHeight) {
                       style: GoogleFonts.manrope(fontSize: 13)),
                   SizedBox(height: 16), // Reduced space between text and button
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => PengajuanIzin()),
-                      );
-                    },
+                    onPressed: isTokenAlreadyUsed
+                        ? null // Disable the button if the token is already used
+                        : () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => PengajuanIzin()),
+                            );
+                          },
                     style: ElevatedButton.styleFrom(
                       padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                       backgroundColor: Colors.transparent,
@@ -301,11 +311,17 @@ Widget _buildShadowedContainer(double screenWidth, double screenHeight) {
                     ),
                     child: Ink(
                       decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF158AD4), Color(0xFF39EADD)],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
+                        gradient: isTokenAlreadyUsed
+                            ? const LinearGradient(
+                                colors: [Colors.grey, Colors.grey],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              )
+                            : const LinearGradient(
+                                colors: [Color(0xFF158AD4), Color(0xFF39EADD)],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Container(
@@ -316,7 +332,7 @@ Widget _buildShadowedContainer(double screenWidth, double screenHeight) {
                         ),
                         padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                         child: Text(
-                          'Ajukan Izin',
+                          isTokenAlreadyUsed ? 'Data presensi sudah terdaftar!' : 'Ajukan Izin',
                           style: GoogleFonts.manrope(
                             fontWeight: FontWeight.w600,
                             fontSize: 14,
@@ -329,12 +345,13 @@ Widget _buildShadowedContainer(double screenWidth, double screenHeight) {
                 ],
               )
             : Center(
-                child: Text('Token tidak valid!',
+                child: Text('Kelas tidak ditemukan!',
                     style: GoogleFonts.manrope(fontSize: 18))),
       ),
     ),
   );
 }
+
 
   Widget _buildTextWithPadding(String text, EdgeInsets padding) {
     return Padding(
