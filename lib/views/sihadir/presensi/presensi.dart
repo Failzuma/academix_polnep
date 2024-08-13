@@ -419,102 +419,137 @@ Widget _buildShadowedContainer(double screenWidth, double screenHeight) {
     );
   }
 
-  Widget _buildAbsenButton() {
-    return ElevatedButton(
-      onPressed: () {
-        _addDataToTable(); // Add data to table when pressed
-      },
-      style: ElevatedButton.styleFrom(
-        padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        backgroundColor: Colors.transparent,
-        shadowColor: Colors.transparent,
-      ),
-      child: Ink(
-        decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFF158AD4), Color(0xFF39EADD)],
-          ),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Container(
-          alignment: Alignment.center,
-          constraints: BoxConstraints(
-            minWidth: 80,
-            minHeight: 36,
-          ),
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Absen',
-            style: GoogleFonts.manrope(
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
-              color: Colors.white,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAbsensiTable() {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
-      padding: EdgeInsets.symmetric(vertical: 10),
+Widget _buildAbsenButton() {
+  return ElevatedButton(
+    onPressed: () {
+      _showConfirmationDialog();
+    },
+    style: ElevatedButton.styleFrom(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      backgroundColor: Colors.transparent,
+      shadowColor: Colors.transparent,
+    ),
+    child: Ink(
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(10),
+        gradient: const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF158AD4), Color(0xFF39EADD)],
+        ),
+        borderRadius: BorderRadius.circular(8),
       ),
-      child: Column(
-        children: [
-          Container(
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [Color(0xFF158AD4), Color(0xFF39EADD)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(10)),
-            ),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                showCheckboxColumn: false, // Hide the checkbox column
-                headingRowColor: MaterialStateProperty.all(Colors.transparent),
-                headingTextStyle: GoogleFonts.manrope(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 14,
-                  color: Colors.white,
-                ),
-                columns: const [
-                  DataColumn(label: Text('Status')),
-                  DataColumn(label: Text('Mata Kuliah')),
-                ],
-                rows: _dataRows, // Use dynamic rows
-                dataRowColor: MaterialStateProperty.resolveWith<Color>(
-                  (Set<MaterialState> states) {
-                    if (states.contains(MaterialState.selected)) {
-                      return const Color(
-                          0xFFE8EAF6); // Lighter indigo for selected rows
-                    }
-                    return const Color(0xFFFFFFFF); // White for unselected rows
-                  },
-                ),
-                dataTextStyle: GoogleFonts.manrope(
-                  fontWeight: FontWeight.w400,
-                  fontSize: 14,
-                  color: const Color(0xFF424242),
-                ),
-                dividerThickness: 1.5,
-                columnSpacing: 20,
-                dataRowHeight: 60, // Adjust height to fit content
-              ),
-            ),
+      child: Container(
+        alignment: Alignment.center,
+        constraints: BoxConstraints(
+          minWidth: 80,
+          minHeight: 36,
+        ),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Text(
+          'Absen',
+          style: GoogleFonts.manrope(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.white,
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+void _showConfirmationDialog() {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: Text('Konfirmasi Absen', style: GoogleFonts.manrope()),
+        content: Text('Apakah Anda yakin ingin melakukan absen?', style: GoogleFonts.manrope()),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+            },
+            child: Text('Batal', style: GoogleFonts.manrope()),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop(); // Close the dialog
+              _addDataToTable(); // Add data to table after confirmation
+            },
+            child: Text('Ya', style: GoogleFonts.manrope()),
           ),
         ],
-      ),
-    );
-  }
+      );
+    },
+  );
+}
+
+Widget _buildAbsensiTable() {
+  return Container(
+    margin: EdgeInsets.symmetric(vertical: 10),
+    padding: EdgeInsets.symmetric(vertical: 10),
+    decoration: BoxDecoration(
+      color: const Color(0xFFF5F5F5),
+      borderRadius: BorderRadius.circular(10),
+    ),
+    child: Column(
+      children: [
+        Container(
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [Color(0xFF158AD4), Color(0xFF39EADD)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(10)),
+          ),
+          child: SingleChildScrollView(
+            scrollDirection: Axis.horizontal,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.vertical,
+              child: ConstrainedBox(
+                constraints: BoxConstraints(maxHeight: 300), // Limit table height
+                child: DataTable(
+                  showCheckboxColumn: false, // Hide the checkbox column
+                  headingRowColor:
+                      MaterialStateProperty.all(Colors.transparent),
+                  headingTextStyle: GoogleFonts.manrope(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                    color: Colors.white,
+                  ),
+                  columns: const [
+                    DataColumn(label: Text('Status')),
+                    DataColumn(label: Text('Mata Kuliah')),
+                  ],
+                  rows: _dataRows, // Use dynamic rows
+                  dataRowColor:
+                      MaterialStateProperty.resolveWith<Color>(
+                    (Set<MaterialState> states) {
+                      if (states.contains(MaterialState.selected)) {
+                        return const Color(0xFFE8EAF6); // Lighter indigo for selected rows
+                      }
+                      return const Color(0xFFFFFFFF); // White for unselected rows
+                    },
+                  ),
+                  dataTextStyle: GoogleFonts.manrope(
+                    fontWeight: FontWeight.w400,
+                    fontSize: 14,
+                    color: const Color(0xFF424242),
+                  ),
+                  dividerThickness: 1, // Thinner divider
+                  columnSpacing: 12, // Reduce spacing between columns
+                  dataRowHeight: 35, // Reduce height to fit content
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
 }
